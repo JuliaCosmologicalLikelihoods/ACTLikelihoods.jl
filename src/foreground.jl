@@ -180,7 +180,7 @@ function compute_fg_totals(p::NamedTuple, model::ForegroundModel{T}) where {T<:R
 
     # ---- ℓ-templates ---- #
 
-    cl_ksz   = eval_template(model.T_ksz,  ell, ell_0)
+    cl_ksz   = ksz_template_scaled(eval_template(model.T_ksz, ell, ell_0), p.a_kSZ)
     cl_tsz   = eval_template_tilt(model.T_tsz, ell, ell_0, p.alpha_tSZ; amp=p.a_tSZ)
     cl_cibc  = eval_template(model.T_cibc, ell, ell_0; amp=p.a_c)
     cl_szxcib = eval_template(model.T_szxcib, ell, ell_0;
@@ -196,7 +196,7 @@ function compute_fg_totals(p::NamedTuple, model::ForegroundModel{T}) where {T<:R
     # of broadcast `α .* X .+ Y` over (n_exp, n_exp, n_ell) arrays, which
     # under Mooncake would generate ~15k tape entries per spectrum.
 
-    fg_TT = assemble_TT(p.a_kSZ, p.a_p, p.a_gtt, p.a_s,
+    fg_TT = assemble_TT(p.a_p, p.a_gtt, p.a_s,
                         f_ksz_T,  f_cibp_T, f_dust_T, f_radio_T,
                         f_tsz_T,  f_cibc_T,
                         cl_ksz,   cl_cibp,  cl_dustT, cl_radio,

@@ -88,7 +88,7 @@ end
     f  = [1.0, 2.0, 3.0]
     cl = ones(100)
     @test_opt target_modules=(ACTLikelihoods,) assemble_TT(
-        1.5, 6.0, 8.0, 3.0,
+        6.0, 8.0, 3.0,
         f, f, f, f, f, f,
         cl, cl, cl, cl, cl, cl, cl)
     @test_opt target_modules=(ACTLikelihoods,) assemble_EE(0.05, 0.168, f, f, cl, cl)

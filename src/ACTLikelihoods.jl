@@ -42,50 +42,45 @@ module ACTLikelihoods
 using LinearAlgebra
 using DelimitedFiles: readdlm
 using ChainRulesCore
+using CMBForegrounds: ksz_template_scaled, eval_template, eval_template_tilt, eval_powerlaw
+# Bandpass machinery now lives in CMBForegrounds (Step 2 of the unification plan).
+# ACT keeps its own SED definitions (frequency.jl) for hot-path performance, but
+# re-uses the universal Band/RawBand types and integration helpers.
+using CMBForegrounds: trapz, RawBand, Band, make_band, point_band,
+                      shift_and_normalize, integrate_sed, integrate_tsz,
+                      eval_sed_bands
+# Cross-spectrum assembly + fused TT/EE/TE assemblers now live in CMBForegrounds
+# (Step 4). Their ChainRulesCore rrules + Mooncake @from_chainrules registrations
+# also live there (in CMBForegroundsMooncakeExt).
+using CMBForegrounds: factorized_cross, factorized_cross_te, correlated_cross,
+                      build_szxcib_cl, assemble_TT, assemble_EE, assemble_TE
 
 # ------------------------------------------------------------------ #
 # Sub-modules (order matters — each builds on the previous)            #
 # ------------------------------------------------------------------ #
 
 include("artifacts.jl")    # Zenodo-backed data artifact (data, cov, bandpasses, templates)
-include("frequency.jl")    # SED functions
-include("bandpass.jl")     # Band struct, bandpass normalization, integration
+include("frequency.jl")    # SED functions (local copies for hot-path performance)
 include("power.jl")        # Template loading and ℓ-template evaluation
-include("cross.jl")        # Cross-spectrum assembly
 include("foreground.jl")   # Full foreground model (ForegroundModel, compute_fg_totals)
 include("likelihood.jl")   # ACTData, load_data, theory_vector, loglike
 
 # ------------------------------------------------------------------ #
-# Custom rrules for Mooncake performance                                #
+# Custom rrule for Mooncake performance                                #
 # ------------------------------------------------------------------ #
-# Forward path is unchanged.  These rrules collapse the 3-D outer-product
-# kernels (factorized_cross, factorized_cross_te, correlated_cross) into
-# BLAS-friendly pullbacks, avoiding millions of scalar tape entries.
+# Cross-spectrum kernel rrules (factorized_cross, factorized_cross_te,
+# correlated_cross, assemble_TT/EE/TE) live in CMBForegrounds and are
+# registered with Mooncake by the CMBForegroundsMooncakeExt extension.
+# Only the ACT-specific theory_vector_core rrule (depends on ACTData)
+# remains here.
 include("rrules.jl")
 
 using Mooncake: @from_chainrules, MinimalCtx
-@from_chainrules MinimalCtx Tuple{typeof(factorized_cross),    Vector{Float64}, Vector{Float64}}
-@from_chainrules MinimalCtx Tuple{typeof(factorized_cross_te), Vector{Float64}, Vector{Float64}, Vector{Float64}}
-@from_chainrules MinimalCtx Tuple{typeof(correlated_cross),    Matrix{Float64}, Array{Float64,3}}
 @from_chainrules MinimalCtx Tuple{typeof(theory_vector_core),
     Vector{Float64}, Vector{Float64}, Vector{Float64},
     Array{Float64,3}, Array{Float64,3}, Array{Float64,3},
     Vector{Float64}, Vector{Float64},
     ACTData}
-@from_chainrules MinimalCtx Tuple{typeof(assemble_TT),
-    Float64, Float64, Float64, Float64,
-    Vector{Float64}, Vector{Float64}, Vector{Float64}, Vector{Float64},
-    Vector{Float64}, Vector{Float64},
-    Vector{Float64}, Vector{Float64}, Vector{Float64}, Vector{Float64},
-    Vector{Float64}, Vector{Float64}, Vector{Float64}}
-@from_chainrules MinimalCtx Tuple{typeof(assemble_EE),
-    Float64, Float64,
-    Vector{Float64}, Vector{Float64},
-    Vector{Float64}, Vector{Float64}}
-@from_chainrules MinimalCtx Tuple{typeof(assemble_TE),
-    Float64, Float64,
-    Vector{Float64}, Vector{Float64}, Vector{Float64}, Vector{Float64},
-    Vector{Float64}, Vector{Float64}}
 
 # ------------------------------------------------------------------ #
 # Public API                                                            #
@@ -96,8 +91,9 @@ export T_CMB_K, H_OVER_KT
 export rj2cmb, cmb2bb, x_cmb
 export tsz_sed, mbb_sed, radio_sed, constant_sed
 
-# bandpass.jl
-export trapz, RawBand, shift_and_normalize, Band, make_band, integrate_sed, eval_sed_bands
+# bandpass machinery (re-exported from CMBForegrounds)
+export trapz, RawBand, shift_and_normalize, Band, make_band, point_band,
+       integrate_sed, integrate_tsz, eval_sed_bands
 
 # power.jl
 export load_template

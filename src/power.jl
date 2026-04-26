@@ -76,45 +76,5 @@ load_szxcib_template() =
 # ------------------------------------------------------------------ #
 # Template evaluation                                                   #
 # ------------------------------------------------------------------ #
-
-"""
-    eval_template(T, ell, ell_0; amp=1.0)
-
-Evaluate a template at multipoles `ell`, normalized to 1 at `ell_0`:
-    amp × T[ℓ] / T[ℓ₀]
-
-`ell` is a Vector{Int}. `ell_0` is an Int.
-"""
-function eval_template(T::AbstractVector, ell::AbstractVector{<:Integer},
-                        ell_0::Integer; amp::Real=1.0)
-    norm = T[ell_0 + 1]
-    return amp .* T[ell .+ 1] ./ norm
-end
-
-"""
-    eval_template_tilt(T, ell, ell_0, alpha; amp=1.0)
-
-Template rescaled by a power law (used for tSZ tilt α_tSZ):
-    amp × T[ℓ] / T[ℓ₀] × (ℓ/ℓ₀)^α
-
-Mirrors `PowerLawRescaledTemplate` in fgspectra.
-"""
-function eval_template_tilt(T::AbstractVector, ell::AbstractVector{<:Integer},
-                              ell_0::Integer, alpha::Real; amp::Real=1.0)
-    base = eval_template(T, ell, ell_0; amp=amp)
-    tilt = (ell ./ ell_0) .^ alpha
-    return base .* tilt
-end
-
-"""
-    eval_powerlaw(ell, ell_0, alpha; amp=1.0)
-
-Simple power law in ℓ:
-    amp × (ℓ/ℓ₀)^α
-
-Used for Poisson CIB, radio, and galactic dust ℓ-dependence.
-`ell` can be any numeric vector (Int or Float for ℓ×(ℓ+1) quantities).
-"""
-function eval_powerlaw(ell::AbstractVector, ell_0::Real, alpha::Real; amp::Real=1.0)
-    return amp .* (ell ./ ell_0) .^ alpha
-end
+# eval_template, eval_template_tilt, eval_powerlaw are imported from
+# CMBForegrounds (see ACTLikelihoods.jl module header).

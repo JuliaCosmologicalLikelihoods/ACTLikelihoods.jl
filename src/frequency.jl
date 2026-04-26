@@ -7,6 +7,11 @@ Mirrors fgspectra/frequency.py.
 All SEDs return a scalar or vector of the same shape as `nu`.
 All are normalized so that SED(nu_0, nu_0, ...) = 1.
 All are pure functions — no mutation — compatible with ForwardDiff and Mooncake.
+
+Note: equivalent functions (tsz_sed, mbb_sed, radio_sed, constant_sed,
+x_cmb, rj2cmb, tsz_f) are also available in CMBForegrounds for use by
+other consumers (SPT, Hillipop). ACT retains local definitions for
+performance — these are called in the hot bandpass integration loop.
 """
 
 # ------------------------------------------------------------------ #
