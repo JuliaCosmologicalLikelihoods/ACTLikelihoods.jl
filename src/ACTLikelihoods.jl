@@ -54,6 +54,10 @@ using CMBForegrounds: trapz, RawBand, Band, make_band, point_band,
 # also live there (in CMBForegroundsMooncakeExt).
 using CMBForegrounds: factorized_cross, factorized_cross_te, correlated_cross,
                       build_szxcib_cl, assemble_TT, assemble_EE, assemble_TE
+# Component-registry (Step 5 of the unification plan).
+using CMBForegrounds: FGComponent, KSZ, TSZ, CIBPoisson, CIBClustered,
+                      CorrelatedTSZxCIB, Radio, DustPL,
+                      FGContext, compute_dl, compute_fg_total
 
 # ------------------------------------------------------------------ #
 # Sub-modules (order matters — each builds on the previous)            #

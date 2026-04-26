@@ -10,8 +10,6 @@ pair (n_exp × n_exp), summed over all foreground components.
 All functions are pure — no mutation — compatible with ForwardDiff and Mooncake.
 """
 
-using LinearAlgebra: dot
-
 # ------------------------------------------------------------------ #
 # ForegroundModel struct — holds precomputed fixed quantities           #
 # ------------------------------------------------------------------ #
@@ -127,13 +125,27 @@ Compute total foreground D_ℓ for all three spectra.
 
 Returns three arrays of shape (n_exp, n_exp, n_ell):
   `fg_TT`, `fg_TE`, `fg_EE`
+
+## Implementation note
+
+Uses the fused per-spectrum assemblers (`assemble_TT/EE/TE` from
+CMBForegrounds) rather than the component-registry accumulator
+(`compute_fg_total`). Benchmarking showed the registry accumulator
+produces a 5× Mooncake regression for ACT's 15-parameter gradient
+(132 ms vs 26 ms baseline): each component's `compute_dl` call adds
+a separate Mooncake tape entry for the 3-D array assembly, whereas
+the fused assemblers collapse the full spectrum into a single entry.
+
+The component registry (`FGContext`, `compute_dl`, `compute_fg_total`)
+remains the canonical extensible API in CMBForegrounds and is the
+intended path for SPT/Hillipop integration (Steps 6–7), which operate
+on smaller band counts and/or without the same Mooncake hot-path
+requirement.
 """
 function compute_fg_totals(p::NamedTuple, model::ForegroundModel{T}) where {T<:Real}
     ell     = model.ell
     ell_0   = model.ell_0
     nu_0    = model.nu_0
-    n_exp   = length(model.raw_T)
-    n_ell   = length(ell)
 
     # Fixed parameters with defaults
     alpha_dT = fg_param(p, :alpha_dT, -0.6)
@@ -162,8 +174,8 @@ function compute_fg_totals(p::NamedTuple, model::ForegroundModel{T}) where {T<:R
 
     # ---- Frequency SED integrals ---- #
     # Each produces a Vector of length n_exp
-    eval_sed_typed(f, bands::AbstractVector{Band{T}}) where {T<:Real} =
-        eval_sed_bands((ν::T) -> f(ν), bands)
+    eval_sed_typed(f, bands::AbstractVector{Band{BT}}) where {BT<:Real} =
+        eval_sed_bands((ν::BT) -> f(ν), bands)
 
     f_ksz_T  = eval_sed_typed(ν -> constant_sed(ν),                  bands_T)
     f_tsz_T  = eval_sed_typed(ν -> tsz_sed(ν, nu_0),                  bands_T)
@@ -192,9 +204,11 @@ function compute_fg_totals(p::NamedTuple, model::ForegroundModel{T}) where {T<:R
     cl_dustE = eval_powerlaw(Float64.(ell),     500.0,             alpha_dE)
 
     # ---- Fused assemblers (single rrule per spectrum) ---- #
-    # See cross.jl :: assemble_TT/EE/TE.  The fused form replaces a chain
-    # of broadcast `α .* X .+ Y` over (n_exp, n_exp, n_ell) arrays, which
-    # under Mooncake would generate ~15k tape entries per spectrum.
+    # See CMBForegrounds/cross.jl :: assemble_TT/EE/TE.  The fused form
+    # replaces a chain of broadcast `α .* X .+ Y` over (n_exp, n_exp, n_ell)
+    # arrays, which under Mooncake would generate ~15k tape entries per
+    # spectrum (4× `.*` + 4× `.+` × 2 spectra × n_freq² × n_ell elements).
+    # The fused rrule collapses this to one tape entry per spectrum.
 
     fg_TT = assemble_TT(p.a_p, p.a_gtt, p.a_s,
                         f_ksz_T,  f_cibp_T, f_dust_T, f_radio_T,
