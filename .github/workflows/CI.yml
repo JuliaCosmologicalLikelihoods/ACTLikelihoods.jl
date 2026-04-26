@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - "1.10" # Minimum Julia version that the package supports (LTS release)
+          - "1.12" # Minimum Julia version that the package supports (JET 0.11 → PrecompileTools 1.3.2 → Julia >= 1.12)
           - "1" # Latest stable release
           - "nightly"
         os:
