@@ -1,0 +1,7 @@
+[act_dr6_data]
+git-tree-sha1 = "113fdd3a54f5e3f2a25f383de9d0ba34e9b5b06c"
+lazy = true
+
+    [[act_dr6_data.download]]
+    sha256 = "e808682eaf17de678a4e617548e5087cdc71eb7a693a8731498ff8308d3cf5b4"
+    url = "https://zenodo.org/records/19771461/files/act_dr6_full_artifact.tar.xz"

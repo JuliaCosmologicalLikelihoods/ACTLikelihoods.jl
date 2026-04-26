@@ -1,0 +1,5 @@
+[deps]
+ACTLikelihoods = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"

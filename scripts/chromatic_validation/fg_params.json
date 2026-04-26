@@ -1,0 +1,32 @@
+{
+  "_comment": "ACT DR6 best-fit foreground parameters. Same set used by scripts/reference_chi2.py and runtests.jl. beta_c is kept untied (extension model path); production tied case is exercised elsewhere.",
+  "ell_grid": {"lmin": 2, "lmax": 8500},
+  "experiments": [
+    "dr6_pa4_f220",
+    "dr6_pa5_f090",
+    "dr6_pa5_f150",
+    "dr6_pa6_f090",
+    "dr6_pa6_f150"
+  ],
+  "fg_params": {
+    "a_tSZ": 3.35, "alpha_tSZ": -0.53,
+    "a_kSZ": 1.48,
+    "a_p": 6.91, "beta_p": 2.07, "T_d": 9.6, "alpha_p": 2.0,
+    "a_c": 4.88, "beta_c": 2.20,
+    "xi": 0.12,
+    "a_s": 3.09, "beta_s": -2.76, "alpha_s": 1.0,
+    "a_gtt": 8.83, "alpha_dT": -0.6, "beta_d": 1.5, "T_effd": 19.6,
+    "a_gte": 0.42, "alpha_dE": -0.4,
+    "a_gee": 0.168,
+    "a_pste": -0.023,
+    "a_psee": 0.040
+  },
+  "bandint_shifts": {
+    "dr6_pa4_f220": 0.0,
+    "dr6_pa5_f090": 0.0,
+    "dr6_pa5_f150": 0.0,
+    "dr6_pa6_f090": 0.0,
+    "dr6_pa6_f150": 0.0
+  },
+  "normalisation": {"nu_0": 150.0, "ell_0": 3000, "T_CMB": 2.725}
+}
