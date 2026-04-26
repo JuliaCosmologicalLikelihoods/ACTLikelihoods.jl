@@ -55,8 +55,8 @@ end
 Apply a frequency shift `shift` [GHz] to `raw.nu` and return a fully
 normalized `Band`.  Differentiable w.r.t. `shift` through `cmb2bb` and `trapz`.
 """
-function shift_and_normalize(raw::RawBand, shift::S) where {S<:Real}
-    T   = promote_type(eltype(raw.nu), S)
+function shift_and_normalize(raw::RawBand{R}, shift::S) where {R<:Real, S<:Real}
+    T   = promote_type(R, S)
     nu_s = raw.nu .+ shift
     make_band(convert(Vector{T}, nu_s), convert(Vector{T}, raw.bp))
 end

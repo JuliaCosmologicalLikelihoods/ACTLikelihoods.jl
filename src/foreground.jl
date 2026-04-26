@@ -151,11 +151,13 @@ function compute_fg_totals(p::NamedTuple, model::ForegroundModel{T}) where {T<:R
     # ---- Apply bandpass shifts (differentiable) ---- #
     # bandint_shift_<exp> shifts the frequency grid before renormalization.
     # Use a typed zero fallback so AD paths don't widen to Union{Dual,Float64}.
+    # `oftype(shift0, …)` is preferred over `convert(typeof(shift0), …)`
+    # because Julia 1.10's inference propagates the concrete type through
+    # `oftype` but not through a `typeof` local binding.
     shift0 = zero(p.a_kSZ)
-    ShiftT = typeof(shift0)
-    bands_T = [shift_and_normalize(r, convert(ShiftT, fg_param(p, Symbol("bandint_shift_" * exp), shift0)))
+    bands_T = [shift_and_normalize(r, oftype(shift0, fg_param(p, Symbol("bandint_shift_" * exp), shift0)))
                for (r, exp) in zip(model.raw_T, model.experiments)]
-    bands_P = [shift_and_normalize(r, convert(ShiftT, fg_param(p, Symbol("bandint_shift_" * exp), shift0)))
+    bands_P = [shift_and_normalize(r, oftype(shift0, fg_param(p, Symbol("bandint_shift_" * exp), shift0)))
                for (r, exp) in zip(model.raw_P, model.experiments)]
 
     # ---- Frequency SED integrals ---- #
@@ -164,11 +166,7 @@ function compute_fg_totals(p::NamedTuple, model::ForegroundModel{T}) where {T<:R
         eval_sed_bands((ν::T) -> f(ν), bands)
 
     f_ksz_T  = eval_sed_typed(ν -> constant_sed(ν),                  bands_T)
-    f_tsz_T = Vector{promote_type(ShiftT, typeof(nu_0))}(undef, n_exp)
-    @inbounds for i in eachindex(bands_T)
-        b::Band{ShiftT} = bands_T[i]
-        f_tsz_T[i] = integrate_tsz(b, nu_0)
-    end
+    f_tsz_T  = eval_sed_typed(ν -> tsz_sed(ν, nu_0),                  bands_T)
     # ACT DR6 baseline ties beta_c = beta_p (act_dr6_example.yml: beta_c: lambda beta_p: beta_p)
     # Allow explicit override via :beta_c only for the (paper-internal) extension model.
     beta_c   = fg_param(p, :beta_c, p.beta_p)
