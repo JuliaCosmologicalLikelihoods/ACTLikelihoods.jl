@@ -496,4 +496,14 @@ let t0 = time()
     println("  done in $(round(time() - t0, digits=2))s")
 end
 
+# ------------------------------------------------------------------ #
+# 9. Turing extension — manual vs Turing log-likelihood                #
+# ------------------------------------------------------------------ #
+
+println("\nTuring extension suite …")
+let t0 = time()
+    include("test_turing.jl")
+    println("  done in $(round(time() - t0, digits=2))s")
+end
+
 println("\nAll tests passed.")
