@@ -43,9 +43,9 @@ using LinearAlgebra
 using DelimitedFiles: readdlm
 using ChainRulesCore
 using CMBForegrounds: ksz_template_scaled, eval_template, eval_template_tilt, eval_powerlaw
-# Bandpass machinery now lives in CMBForegrounds (Step 2 of the unification plan).
-# ACT keeps its own SED definitions (frequency.jl) for hot-path performance, but
-# re-uses the universal Band/RawBand types and integration helpers.
+# Bandpass machinery (Step 2) + SED functions (Step 6/PR-B) live in CMBForegrounds.
+using CMBForegrounds: x_cmb, rj2cmb, cmb2bb, tsz_f, tsz_sed, mbb_sed,
+                      radio_sed, constant_sed
 using CMBForegrounds: trapz, RawBand, Band, make_band, point_band,
                       shift_and_normalize, integrate_sed, integrate_tsz,
                       eval_sed_bands
@@ -86,10 +86,8 @@ using Mooncake: @from_chainrules, MinimalCtx
 # Public API                                                            #
 # ------------------------------------------------------------------ #
 
-# frequency.jl
-export T_CMB_K, H_OVER_KT
-export rj2cmb, cmb2bb, x_cmb
-export tsz_sed, mbb_sed, radio_sed, constant_sed
+# SED functions (re-exported from CMBForegrounds)
+export x_cmb, rj2cmb, cmb2bb, tsz_f, tsz_sed, mbb_sed, radio_sed, constant_sed
 
 # bandpass machinery (re-exported from CMBForegrounds)
 export trapz, RawBand, shift_and_normalize, Band, make_band, point_band,
