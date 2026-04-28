@@ -129,18 +129,9 @@ Returns three arrays of shape (n_exp, n_exp, n_ell):
 ## Implementation note
 
 Uses the fused per-spectrum assemblers (`assemble_TT/EE/TE` from
-CMBForegrounds) rather than the component-registry accumulator
-(`compute_fg_total`). Benchmarking showed the registry accumulator
-produces a 5× Mooncake regression for ACT's 15-parameter gradient
-(132 ms vs 26 ms baseline): each component's `compute_dl` call adds
-a separate Mooncake tape entry for the 3-D array assembly, whereas
-the fused assemblers collapse the full spectrum into a single entry.
-
-The component registry (`FGContext`, `compute_dl`, `compute_fg_total`)
-remains the canonical extensible API in CMBForegrounds and is the
-intended path for SPT/Hillipop integration (Steps 6–7), which operate
-on smaller band counts and/or without the same Mooncake hot-path
-requirement.
+CMBForegrounds), which collapse the full spectrum into a single
+Mooncake tape entry per spectrum — essential for the 15-parameter
+Mooncake gradient to stay at ~26 ms.
 """
 function compute_fg_totals(p::NamedTuple, model::ForegroundModel{T}) where {T<:Real}
     ell     = model.ell

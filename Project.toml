@@ -25,7 +25,7 @@ ACTLikelihoodsTuringExt = ["Turing", "PDMats"]
 [compat]
 ADTypes = "1.21.0"
 ChainRulesCore = "1.25"
-CMBForegrounds = "0.1, 0.2"
+CMBForegrounds = "0.1, 0.2, 0.3"
 DelimitedFiles = "1.9.1"
 DifferentiationInterface = "0.7.16"
 ForwardDiff = "1.3.3"
