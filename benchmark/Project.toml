@@ -1,0 +1,14 @@
+[deps]
+ACTLikelihoods = "9fe0f427-9931-4ac3-b9b0-c0ab42f868c3"
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CMBForegrounds = "fc0df5e6-91e0-40ab-a79d-ad91d7e99724"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[sources]
+CMBForegrounds = {url = "https://github.com/JuliaCosmologicalLikelihoods/CMBForegrounds.jl", rev = "v0.4.1"}

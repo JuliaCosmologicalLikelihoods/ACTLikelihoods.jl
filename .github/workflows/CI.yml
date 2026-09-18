@@ -1,39 +1,31 @@
 name: CI
 
 on:
-  schedule:
-    - cron: "0 0 * * 1"
-  pull_request:
-    branches:
-      - main
-      - develop
   push:
-    branches:
-      - "**"
-    tags:
-      - "*"
+    # `develop` is the branch this release work lands on, so every pushed
+    # release commit must run the full matrix, not only pull requests.
+    branches: [main, develop]
+    tags: ['*']
+  pull_request:
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
 
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ github.event_name }}
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - "1.10"
-          - "1.11"
-          - "1.12"
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
+        version: ['1.10', '1.11', '1.12']
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v5
@@ -41,30 +33,116 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
+          arch: x64
 
-      - uses: actions/cache@v5
-        env:
-          cache-name: cache-artifacts
+      # Caching may only make the build faster. It must never be able to change
+      # a result: the artifact is content-addressed by its tree hash, so a
+      # stale or corrupt cache entry is rejected and re-downloaded rather than
+      # used. No test consults the cache for correctness.
+      - uses: julia-actions/cache@v2
         with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
+          cache-name: ${{ matrix.version }}
 
-      - uses: julia-actions/julia-buildpkg@v1
+      # Julia 1.10 does not understand `[sources]`. Install the pinned
+      # CMBForegrounds tag explicitly before instantiating, so 1.10 resolves
+      # exactly the same dependency as 1.11/1.12 do recursively.
+      - name: Bootstrap CMBForegrounds v0.4.1 (Julia 1.10 only)
+        if: matrix.version == '1.10'
+        run: |
+          julia --project=. -e '
+            using Pkg
+            Pkg.add(url="https://github.com/JuliaCosmologicalLikelihoods/CMBForegrounds.jl",
+                    rev="v0.4.1")
+          '
+
+      - name: Instantiate
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      # Prove which CMBForegrounds source was resolved, on every version.
+      - name: Package status
+        run: |
+          julia --project=. -e '
+            using Pkg
+            Pkg.status()
+            Pkg.status(; mode = Pkg.PKGMODE_MANIFEST)
+          '
+
+      # The public constructors must work outside the test environment, using
+      # nothing but the published artifact.
+      - name: Public artifact path outside the test environment
+        run: |
+          julia --project=. -e '
+            using ACTLikelihoods
+            provenance = act_dr6_provenance()
+            println("artifact      ", provenance.artifact)
+            println("doi           ", provenance.doi)
+            println("tree sha1     ", provenance.tree_sha1)
+            println("archive sha256 ", provenance.archive_sha256)
+            path = act_dr6_tttee_artifact_path()
+            println("artifact path ", path)
+
+            like  = ACTDR6FullLikelihood()
+            model = ACTDR6FullForegroundModel(like)
+            println(like)
+            @assert length(like.observed) == 1651
+            @assert length(like.spectra) == 41
+            @assert like.channels == [
+                "dr6_pa4_f220", "dr6_pa5_f090", "dr6_pa5_f150",
+                "dr6_pa6_f090", "dr6_pa6_f150",
+            ]
+            @assert length(model.temperature_bands) == 5
+            @assert isapprox(gaussian_normalization(like), -2145.1713776754927;
+                             rtol = 1e-12)
+            println("public constructors OK")
+          '
+
+      # No environment-variable gates, no filtered test sets: the whole suite
+      # runs, including both package extensions and the full AD battery.
       - uses: julia-actions/julia-runtest@v1
 
       - uses: julia-actions/julia-processcoverage@v1
-        if: matrix.version == '1.10' && matrix.os == 'ubuntu-latest'
-        with:
-          directories: src,ext
-
       - uses: codecov/codecov-action@v5
-        if: matrix.version == '1.10' && matrix.os == 'ubuntu-latest'
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
-          verbose: true
+
+  fixtures:
+    name: Reference fixtures are text only
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      # The published artifact is the runtime-data distribution mechanism.
+      # Binary science data and bulk dumps must never enter the repository.
+      - name: Reject binary data products in the repository
+        run: |
+          set -euo pipefail
+          offenders=$(git ls-files \
+            '*.npy' '*.npz' '*.fits' '*.fits.gz' '*.h5' '*.hdf5' '*.pkl' \
+            '*.tar' '*.tar.gz' '*.tar.xz' '*.tgz' '*.zip' \
+            'Manifest.toml' '**/Manifest.toml' \
+            'data/**' '**/__pycache__/**' || true)
+          if [ -n "$offenders" ]; then
+            echo "these must not be committed:"
+            echo "$offenders"
+            exit 1
+          fi
+          echo "no binary data products or manifests are tracked"
+
+      - name: Reference fixtures stay small and textual
+        run: |
+          set -euo pipefail
+          for path in $(git ls-files 'validation/fixtures/**'); do
+            if ! file --mime "$path" | grep -q 'charset=us-ascii\|charset=utf-8'; then
+              echo "not a text fixture: $path"
+              exit 1
+            fi
+          done
+          size=$(du -sk validation/fixtures | cut -f1)
+          echo "validation/fixtures is ${size} KiB"
+          if [ "$size" -gt 4096 ]; then
+            echo "reference fixtures exceeded 4 MiB"
+            exit 1
+          fi

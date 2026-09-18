@@ -1,0 +1,9 @@
+name	value
+number_of_bandpowers	1651
+number_of_spectra	41
+ell_min	2
+ell_max	8501
+chi2	1.592058412999161419e+03
+data_only_loglikelihood	-7.960292064995807095e+02
+gaussian_log_normalization	-2.145171377675493204e+03
+upstream_loglike	-2.941200584175073800e+03

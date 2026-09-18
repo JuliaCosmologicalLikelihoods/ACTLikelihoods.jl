@@ -1,0 +1,70 @@
+{
+  "sacc_file": "dr6_data.fits",
+  "sacc_sha256": "eca996ddb1fc57750299bf5757a40f5d178c1a8b3446d3341a99ca5ba7378e8b",
+  "number_of_bandpowers": 1651,
+  "checkpoint_ells": [
+    2,
+    3,
+    101,
+    503,
+    1009,
+    2003,
+    3001,
+    4001,
+    5003,
+    6007,
+    8501
+  ],
+  "checkpoint_nu_indices": [
+    0,
+    7,
+    19,
+    31,
+    49
+  ],
+  "foreground_parameters": {
+    "a_tSZ": 3.50114277,
+    "alpha_tSZ": -0.4597721879,
+    "a_kSZ": 0.986604682,
+    "a_p": 7.647742104,
+    "beta_p": 1.86490755,
+    "a_c": 3.805341822,
+    "beta_c": 1.86490755,
+    "a_s": 2.886594272,
+    "beta_s": -2.7567784,
+    "a_gtt": 7.974213801,
+    "a_gte": 0.4184588365,
+    "a_gee": 0.1676466062,
+    "a_psee": 0.003755819497,
+    "a_pste": -0.02500092711,
+    "xi": 0.06424293336,
+    "alpha_s": 1.0,
+    "T_effd": 19.6,
+    "beta_d": 1.5,
+    "alpha_dT": -0.6,
+    "alpha_dE": -0.4,
+    "alpha_p": 1.0,
+    "T_d": 9.6
+  },
+  "systematics_parameters": {
+    "calG_all": 1.001567048,
+    "cal_dr6_pa4_f220": 0.9808084654,
+    "cal_dr6_pa5_f090": 1.000098497,
+    "cal_dr6_pa5_f150": 0.9991342522,
+    "cal_dr6_pa6_f090": 0.9998031382,
+    "cal_dr6_pa6_f150": 1.001407626,
+    "calE_dr6_pa4_f220": 1.0,
+    "calE_dr6_pa5_f090": 0.9874026803,
+    "calE_dr6_pa5_f150": 0.9975776488,
+    "calE_dr6_pa6_f090": 0.9975750142,
+    "calE_dr6_pa6_f150": 0.9968551529,
+    "bandint_shift_dr6_pa4_f220": 6.399328024,
+    "bandint_shift_dr6_pa5_f090": -0.2911716302,
+    "bandint_shift_dr6_pa5_f150": -1.056426408,
+    "bandint_shift_dr6_pa6_f090": 0.3121747872,
+    "bandint_shift_dr6_pa6_f150": -0.4252785128
+  },
+  "source_revisions": {
+    "act_dr6_mflike": "fc63c8c40533cea0bbec91677208de285c50fc10"
+  }
+}
