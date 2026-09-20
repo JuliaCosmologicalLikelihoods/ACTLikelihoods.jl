@@ -63,6 +63,9 @@ include("testsetup.jl")
     @testset "README examples" begin
         include("test_readme.jl")
     end
+    @testset "Turing extension" begin
+        include("test_turing.jl")
+    end
     @testset "CMB-only marginalized variant — units" begin
         include("test_cmb_only_unit.jl")
     end

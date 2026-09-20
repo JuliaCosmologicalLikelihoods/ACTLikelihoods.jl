@@ -9,15 +9,20 @@ CMBForegrounds = "fc0df5e6-91e0-40ab-a79d-ad91d7e99724"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+StatsAPI = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
 
 [weakdeps]
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
+Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [extensions]
 ACTLikelihoodsChainRulesCoreExt = "ChainRulesCore"
 ACTLikelihoodsMooncakeExt = ["ChainRulesCore", "Mooncake"]
+ACTLikelihoodsTuringExt = ["Turing", "Distributions"]
 
 [sources]
 CMBForegrounds = {url = "https://github.com/JuliaCosmologicalLikelihoods/CMBForegrounds.jl", rev = "v0.4.1"}
@@ -28,6 +33,7 @@ Artifacts = "1"
 CMBForegrounds = "0.4.1"
 ChainRulesCore = "1"
 DelimitedFiles = "1"
+Distributions = "0.25"
 DifferentiationInterface = "0.7"
 FiniteDifferences = "0.12"
 ForwardDiff = "1"
@@ -36,18 +42,22 @@ LinearAlgebra = "1"
 Mooncake = "0.5"
 Random = "1"
 SHA = "0.7"
+StatsAPI = "1"
 Test = "1"
+Turing = "0.40, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49"
 julia = "1.10"
 
 [extras]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
 FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [targets]
-test = ["Test", "Random", "ADTypes", "ChainRulesCore", "DifferentiationInterface", "FiniteDifferences", "ForwardDiff", "Mooncake"]
+test = ["Test", "Random", "ADTypes", "ChainRulesCore", "DifferentiationInterface", "Distributions", "FiniteDifferences", "ForwardDiff", "Mooncake", "Turing"]

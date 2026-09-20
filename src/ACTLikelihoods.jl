@@ -51,6 +51,13 @@ using CMBForegrounds
 using JSON3
 import SHA
 
+# `loglikelihood` and `predict` are extended from StatsAPI rather than defined
+# here. Distributions, StatsBase, DynamicPPL and Turing all extend that same
+# binding, so defining rival ones made `using ACTLikelihoods, Turing` ambiguous
+# for two of this package's main entry points — and broke the Turing extension
+# from the inside. StatsAPI has no dependencies of its own.
+import StatsAPI: loglikelihood, predict
+
 include("ACT_artifact.jl")
 include("ACT_data_loader.jl")
 include("ACT_foreground_model.jl")
