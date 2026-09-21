@@ -9,9 +9,7 @@ artifact_staging/
 
 # Julia
 Manifest.toml
-Manifest-v*.toml
 /docs/build/
-/docs/Manifest.toml
 *.cov
 *.jl.mem
 deps/deps.jl
