@@ -98,7 +98,7 @@ end
     # CMBForegrounds throws there rather than returning -Inf, which kills the
     # chain instead of rejecting the proposal.
     chain = sample(model, NUTS(2, 0.65; adtype=AutoForwardDiff()), 2;
-                   initial_params=start, progress=false, verbose=false)
+                   initial_params=Turing.DynamicPPL.InitFromParams(start), progress=false, verbose=false)
     @test size(chain, 1) == 2
     parameters = [k for k in keys(chain) if occursin("Parameter", string(k))]
     @test length(parameters) == 29
